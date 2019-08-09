@@ -21,19 +21,22 @@ Public Class FormMain
 
     End Sub
 
-    Private Sub BtnStart_Click(sender As Object, e As EventArgs) Handles btnStart.Click
+    Private Async Sub BtnStart_Click(sender As Object, e As EventArgs) Handles btnStart.Click
+
         'CheckInput
         If Not IsInputOK() Then
-            Throw New Exception("输入不正确")
             Exit Sub
         End If
+
 
         'disable button, show message
         btnStart.Enabled = False
         lblProcess.Text = "正在启动"
 
+
         'Get PrintFix value
         Dim printFix As Duality = GetPrintFixFromWindow()
+
 
         'set Wd object
         Dim wd As New CardDocGenerator With {
@@ -42,23 +45,26 @@ Public Class FormMain
             .IsTransRotated = ChkTransRotate.Checked,
             .Content = IO.File.ReadAllLines(txtContentPath.Text)
             }
+
         AddHandler wd.ProcessChanged, AddressOf ProcessChanged_Handler
         Dim PageCount As Integer = Math.Ceiling(wd.Content.Count / 64)
         wd.AddPage(PageCount * 2 - 1)
 
+
         'start generating Doc file
-        wd.CreateCards()
+        Await Task.Run(AddressOf wd.CreateCards)
 
-        'save Doc and close it
-        wd.SaveDoc(txtSavingPath.Text)
-        wd.CloseDoc()
-        RemoveHandler wd.ProcessChanged ,AddressOf ProcessChanged_Handler 
+            'save Doc and close it
+            wd.SaveDoc(txtSavingPath.Text)
+            wd.CloseDoc()
+            RemoveHandler wd.ProcessChanged, AddressOf ProcessChanged_Handler
 
-        'reset state of all control
-        btnStart.Enabled = True
-        SaveDia.FileName = ""
-        lblProcess.ResetText()
-        PrBar.Value = 0
+            'reset state of all control
+            btnStart.Enabled = True
+            SaveDia.FileName = ""
+            lblProcess.ResetText()
+            PrBar.Value = 0
+
     End Sub
 
     Function GetPrintFixFromWindow() As Duality
@@ -101,7 +107,12 @@ Public Class FormMain
     End Sub
 
     Private Sub ProcessChanged_Handler(process As Double)
+        Me.Invoke(New UpdateProcess_Delegate(AddressOf UpdateProcess), process)
+    End Sub
+    Private Delegate Sub UpdateProcess_Delegate(process As Double)
+    Private Sub UpdateProcess(process As Double)
         lblProcess.Text = String.Format("{0:P}", process)
+        PrBar.Value = process * 100
     End Sub
 
     Function IsInputOK() As Boolean
@@ -113,6 +124,11 @@ Public Class FormMain
             Return False
         End If
 
+        'Is Content odd
+        If IO.File.ReadAllLines(txtContentPath.Text).Length Mod 2 <> 0 Then
+            MessageBox.Show("文件内容的行数为奇数，无法配对")
+            Return False
+        End If
 
         'PrintFix
         Dim a As Single
@@ -137,6 +153,8 @@ Public Class FormMain
 
         Return True
     End Function
+
+
 
     '计划 TODO
     '3.适当补充注释
@@ -164,7 +182,10 @@ End Class
     Private w As Single
     Private h As Single
 
-    Event ProcessChanged(process As Double)
+    Delegate Sub ProcessChanged_Delegate(process As Double)
+    Friend ProcessChanged_Handler As ProcessChanged_Delegate
+    Public Event ProcessChanged As ProcessChanged_Delegate
+
 
     Sub New()
         Me.IsHorizonal = True
@@ -172,15 +193,18 @@ End Class
     End Sub
 
     Sub CreateCards()
+
+
         'declaration
         Dim i, j As Integer    'Circulation Variable
         w = MyDoc.PageSetup.PageWidth
         h = MyDoc.PageSetup.PageHeight
         Dim RestCardCount As Integer
         Dim tmpCardShape As Word.Shape
+        Dim counter As Integer = 0
 
         'DEBUG show window for observe
-        MyDoc.Windows(1).Visible = True
+        'MyDoc.Windows(1).Visible = True
 
         'arrange card into correct position
         Dim position, size As Duality
@@ -195,11 +219,11 @@ End Class
                 tmpCardShape = GetTmpCardShape(position, size)
                 SetTmpCardShape(tmpCardShape, i, j)
                 'Increase Progress
-                Process = (GetContentIndex(i, j) + 1) / Content.Length
+                counter += 1
+                Process = counter / Content.Length
                 RaiseEvent ProcessChanged(Process)
             Next j
         Next i
-
     End Sub
 
     Private Function GetCardPosition(i As Integer, j As Integer) As Duality
