@@ -209,7 +209,7 @@ Public Class CardDocGenerator
         '卡片正面
         If i Mod 2 = 1 Then
             result.a = ((j - 1) \ 8) * w / 4 - PrintFix.a
-            result.b = ((7 - ((j - 1) Mod 8)) * h / 8) - PrintFix.b
+            result.b = (((j - 1) Mod 8) * h / 8) - PrintFix.b
             Return result
         End If
 
