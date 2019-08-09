@@ -42,26 +42,17 @@ Public Class FormMain
             .IsTransRotated = ChkTransRotate.Checked,
             .Content = IO.File.ReadAllLines(txtContentPath.Text)
             }
+        AddHandler wd.ProcessChanged, AddressOf ProcessChanged_Handler
         Dim PageCount As Integer = Math.Ceiling(wd.Content.Count / 64)
         wd.AddPage(PageCount * 2 - 1)
 
         'start generating Doc file
-        Dim threadCreateCard As New Threading.Thread(AddressOf wd.CreateCards)
-        threadCreateCard.Start()
-
-        'while create card, update process bar
-        Do
-            PrBar.Value = wd.Process * 100
-            lblProcess.Text = String.Format("{0:P}", wd.Process)
-            'Threading.Thread.Sleep(500)
-        Loop Until wd.Process >= 1
-
-        'stop thread
-        threadCreateCard.Abort()
+        wd.CreateCards()
 
         'save Doc and close it
         wd.SaveDoc(txtSavingPath.Text)
         wd.CloseDoc()
+        RemoveHandler wd.ProcessChanged ,AddressOf ProcessChanged_Handler 
 
         'reset state of all control
         btnStart.Enabled = True
@@ -107,6 +98,10 @@ Public Class FormMain
         If SaveDia.ShowDialog() <> DialogResult.OK Then Exit Sub
         txtSavingPath.Text = SaveDia.FileName
         SaveDia.FileName = ""
+    End Sub
+
+    Private Sub ProcessChanged_Handler(process As Double)
+        lblProcess.Text = String.Format("{0:P}", process)
     End Sub
 
     Function IsInputOK() As Boolean
@@ -156,7 +151,7 @@ End Class
 
 
 
-Public Class CardDocGenerator
+    Public Class CardDocGenerator
     Inherits MyWord
     Const HOLE_RADIUS As Single = 0.3! * 0.3937! * 72.0!   '半径 * 厘米转英寸 * 英寸转磅 
 
@@ -168,6 +163,8 @@ Public Class CardDocGenerator
 
     Private w As Single
     Private h As Single
+
+    Event ProcessChanged(process As Double)
 
     Sub New()
         Me.IsHorizonal = True
@@ -199,6 +196,7 @@ Public Class CardDocGenerator
                 SetTmpCardShape(tmpCardShape, i, j)
                 'Increase Progress
                 Process = (GetContentIndex(i, j) + 1) / Content.Length
+                RaiseEvent ProcessChanged(Process)
             Next j
         Next i
 
