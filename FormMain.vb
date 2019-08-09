@@ -189,7 +189,7 @@ Public Class CardDocGenerator
         Dim position, size As Duality
         For i = 1 To MyPane.Pages.Count
             MyPane.Selection.GoTo(Word.WdGoToItem.wdGoToPage, Word.WdGoToDirection.wdGoToAbsolute, i)  '移动光标至第i页
-            RestCardCount = Math.Min(32, Content.Count / 2 - 32 * (i \ 2 - 1))   '当前页未放置的卡片数
+            RestCardCount = 0.5 * Math.Min(64, Content.Count - 64 * (0.5 * (i + i Mod 2) - 1))   '当前页未放置的卡片数
             For j = 1 To RestCardCount
                 'get position and size
                 position = GetCardPosition(i, j)
