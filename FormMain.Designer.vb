@@ -22,11 +22,11 @@ Partial Class FormMain
     '不要使用代码编辑器修改它。
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
-        Me.btnStart = New System.Windows.Forms.Button()
+        Me.BtnStart = New System.Windows.Forms.Button()
         Me.lblContentPath = New System.Windows.Forms.Label()
         Me.Lable1 = New System.Windows.Forms.Label()
         Me.btnOpenContent = New System.Windows.Forms.Button()
-        Me.btnExit = New System.Windows.Forms.Button()
+        Me.BtnAbout = New System.Windows.Forms.Button()
         Me.PrBar = New System.Windows.Forms.ProgressBar()
         Me.txtContentPath = New System.Windows.Forms.TextBox()
         Me.SaveDia = New System.Windows.Forms.SaveFileDialog()
@@ -50,14 +50,14 @@ Partial Class FormMain
         Me.gpbOption.SuspendLayout()
         Me.SuspendLayout()
         '
-        'btnStart
+        'BtnStart
         '
-        Me.btnStart.Location = New System.Drawing.Point(23, 156)
-        Me.btnStart.Name = "btnStart"
-        Me.btnStart.Size = New System.Drawing.Size(77, 36)
-        Me.btnStart.TabIndex = 10
-        Me.btnStart.Text = "开始"
-        Me.btnStart.UseVisualStyleBackColor = True
+        Me.BtnStart.Location = New System.Drawing.Point(22, 159)
+        Me.BtnStart.Name = "BtnStart"
+        Me.BtnStart.Size = New System.Drawing.Size(77, 36)
+        Me.BtnStart.TabIndex = 10
+        Me.BtnStart.Text = "开始"
+        Me.BtnStart.UseVisualStyleBackColor = True
         '
         'lblContentPath
         '
@@ -86,14 +86,14 @@ Partial Class FormMain
         Me.btnOpenContent.Text = "打开"
         Me.btnOpenContent.UseVisualStyleBackColor = True
         '
-        'btnExit
+        'BtnAbout
         '
-        Me.btnExit.Location = New System.Drawing.Point(255, 156)
-        Me.btnExit.Name = "btnExit"
-        Me.btnExit.Size = New System.Drawing.Size(77, 36)
-        Me.btnExit.TabIndex = 11
-        Me.btnExit.Text = "退出"
-        Me.btnExit.UseVisualStyleBackColor = True
+        Me.BtnAbout.Location = New System.Drawing.Point(254, 159)
+        Me.BtnAbout.Name = "BtnAbout"
+        Me.BtnAbout.Size = New System.Drawing.Size(77, 36)
+        Me.BtnAbout.TabIndex = 11
+        Me.BtnAbout.Text = "关于"
+        Me.BtnAbout.UseVisualStyleBackColor = True
         '
         'PrBar
         '
@@ -123,9 +123,9 @@ Partial Class FormMain
         Me.lblPrintFix.AutoSize = True
         Me.lblPrintFix.Location = New System.Drawing.Point(6, 25)
         Me.lblPrintFix.Name = "lblPrintFix"
-        Me.lblPrintFix.Size = New System.Drawing.Size(149, 12)
+        Me.lblPrintFix.Size = New System.Drawing.Size(161, 12)
         Me.lblPrintFix.TabIndex = 10
-        Me.lblPrintFix.Text = "打印机偏移量(右上偏为正)"
+        Me.lblPrintFix.Text = "打印机偏移量(向右向上为正)"
         '
         'txtPtHrzFix
         '
@@ -260,7 +260,7 @@ Partial Class FormMain
         '
         'BtnHelp
         '
-        Me.BtnHelp.Location = New System.Drawing.Point(139, 156)
+        Me.BtnHelp.Location = New System.Drawing.Point(138, 159)
         Me.BtnHelp.Name = "BtnHelp"
         Me.BtnHelp.Size = New System.Drawing.Size(77, 36)
         Me.BtnHelp.TabIndex = 16
@@ -280,11 +280,11 @@ Partial Class FormMain
         Me.Controls.Add(Me.gpbOption)
         Me.Controls.Add(Me.txtContentPath)
         Me.Controls.Add(Me.PrBar)
-        Me.Controls.Add(Me.btnExit)
+        Me.Controls.Add(Me.BtnAbout)
         Me.Controls.Add(Me.btnOpenContent)
         Me.Controls.Add(Me.Lable1)
         Me.Controls.Add(Me.lblContentPath)
-        Me.Controls.Add(Me.btnStart)
+        Me.Controls.Add(Me.BtnStart)
         Me.Name = "FormMain"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "生成单词卡"
@@ -295,11 +295,11 @@ Partial Class FormMain
 
     End Sub
 
-    Friend WithEvents btnStart As Button
+    Friend WithEvents BtnStart As Button
     Friend WithEvents lblContentPath As Label
     Friend WithEvents Lable1 As Label
     Friend WithEvents btnOpenContent As Button
-    Friend WithEvents btnExit As Button
+    Friend WithEvents BtnAbout As Button
     Friend WithEvents PrBar As ProgressBar
     Friend WithEvents txtContentPath As TextBox
     Friend WithEvents SaveDia As SaveFileDialog

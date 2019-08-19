@@ -1,6 +1,7 @@
 ﻿Imports OfficeCore = Microsoft.Office.Core
 Imports Word = Microsoft.Office.Interop.Word
 
+
 Public Class FormMain
 
     Private Sub FormMain_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -12,7 +13,6 @@ Public Class FormMain
             Dim myApp = New Word.Application()
         Catch ex As Exception
             MessageBox.Show("调用Word程序失败，请检查是否安装Word。" & vbCrLf & ex.ToString, "错误")
-            WriteErrLog(ex.ToString, "FormMain_Load Start Word App")
             End
         End Try
 
@@ -21,7 +21,7 @@ Public Class FormMain
 
     End Sub
 
-    Private Async Sub BtnStart_Click(sender As Object, e As EventArgs) Handles btnStart.Click
+    Private Async Sub BtnStart_Click(sender As Object, e As EventArgs) Handles BtnStart.Click
 
         'CheckInput
         If Not IsInputOK() Then
@@ -30,13 +30,8 @@ Public Class FormMain
 
 
         'disable button, show message
-        btnStart.Enabled = False
+        BtnStart.Enabled = False
         lblProcess.Text = "正在启动"
-
-
-        'Get PrintFix value
-        Dim printFix As Duality = GetPrintFixFromWindow()
-
 
         'set Wd object
         Dim wd As New CardDocGenerator With {
@@ -52,18 +47,23 @@ Public Class FormMain
 
 
         'start generating Doc file
-        Await Task.Run(AddressOf wd.CreateCards)
+        Try
+            Await Task.Run(AddressOf wd.CreateCards)
+        Catch ex As Exception
+            ErrorHandler.WriteErrLog(ex, "wd.CreateCards")
+            MessageBox.Show("很抱歉，出现了一个错误，生成失败！" & vbCrLf & "【错误信息】" & vbCrLf & ex.ToString())
+        End Try
 
-            'save Doc and close it
-            wd.SaveDoc(txtSavingPath.Text)
-            wd.CloseDoc()
-            RemoveHandler wd.ProcessChanged, AddressOf ProcessChanged_Handler
+        'save Doc and close it
+        wd.SaveDoc(txtSavingPath.Text)
+        wd.CloseDoc()
+        RemoveHandler wd.ProcessChanged, AddressOf ProcessChanged_Handler
 
-            'reset state of all control
-            btnStart.Enabled = True
-            SaveDia.FileName = ""
-            lblProcess.ResetText()
-            PrBar.Value = 0
+        'reset state of all control
+        BtnStart.Enabled = True
+        SaveDia.FileName = ""
+        lblProcess.ResetText()
+        PrBar.Value = 0
 
     End Sub
 
@@ -88,8 +88,12 @@ Public Class FormMain
         Return result
     End Function
 
-    Private Sub BtnExit_Click(sender As Object, e As EventArgs) Handles btnExit.Click
-        Application.Exit()
+    Private Sub BtnAbout_Click(sender As Object, e As EventArgs) Handles BtnAbout.Click
+        MessageBox.Show("作者 SMagic  保留一切著作权
+
+本应用已开源，并签署了 MIT License
+
+详见 https://github.com/SMagic-L/GenerateWordCard", "关于")
     End Sub
 
     Private Sub BtnOpenEng_Click(sender As Object, e As EventArgs) Handles btnOpenContent.Click
@@ -109,6 +113,7 @@ Public Class FormMain
     Private Sub ProcessChanged_Handler(process As Double)
         Me.Invoke(New UpdateProcess_Delegate(AddressOf UpdateProcess), process)
     End Sub
+
     Private Delegate Sub UpdateProcess_Delegate(process As Double)
     Private Sub UpdateProcess(process As Double)
         lblProcess.Text = String.Format("{0:P}", process)
@@ -154,6 +159,20 @@ Public Class FormMain
         Return True
     End Function
 
+    Private Sub BtnHelp_Click(sender As Object, e As EventArgs) Handles BtnHelp.Click
+        MessageBox.Show("确保装有微软的word（程序内需调用VBA的API，所以不支持WPS）。
+
+将单词卡的内容以【一行单词，一行翻译】的形式，存储在UTF-8格式的txt文件里。
+
+打开程序，设置路径后，点击【开始】，生成一个word文档
+
+生成word文档后，将其打印出来，并裁剪
+
+建议使用裁纸器裁剪，否则你的单词卡可能会犬牙差互（逃", "使用说明")
+    End Sub
+
+
+
 
 
     '计划 TODO
@@ -168,8 +187,7 @@ Public Class FormMain
 End Class
 
 
-
-    Public Class CardDocGenerator
+Public Class CardDocGenerator
     Inherits MyWord
     Const HOLE_RADIUS As Single = 0.3! * 0.3937! * 72.0!   '半径 * 厘米转英寸 * 英寸转磅 
 

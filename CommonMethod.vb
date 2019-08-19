@@ -1,15 +1,11 @@
 ﻿Imports Word = Microsoft.Office.Interop.Word
 
-Module CommonMethod
-    Public Const EMAIL As String = "example@example.com"
-    Sub WriteErrLog(exToString As String, Optional CodeLocation As String = Nothing)
-        IO.File.AppendAllText(IO.Directory.GetCurrentDirectory & "\Err.log", DateString & " " & TimeString & vbCrLf & exToString & vbCrLf & "错误发生在：" & CodeLocation & vbCrLf & "=================================")
-    End Sub
 
-    Sub ShowErrMsg(exToString As String)
-        MessageBox.Show("如您愿意，请发送以下信息至" & EMAIL & "，万分感激！" & vbCrLf & exToString, "出现错误")
+Class ErrorHandler
+    Shared Sub WriteErrLog(ByRef ex As Exception, Optional CodeLocation As String = "")
+        IO.File.AppendAllText(IO.Directory.GetCurrentDirectory & "\Error.log", DateString & " " & TimeString & vbCrLf & ex.ToString() & vbCrLf & "错误发生在：" & CodeLocation & vbCrLf & "=================================")
     End Sub
-End Module
+End Class
 
 Public Structure Duality
     Dim a As Single
@@ -47,7 +43,7 @@ Public Class MyWord
 
         Catch ex As Exception
             MessageBox.Show("保存失败！" & vbCrLf & ex.ToString, "错误")
-            WriteErrLog(ex.ToString, "SaveDoc")
+
         End Try
     End Sub
 
